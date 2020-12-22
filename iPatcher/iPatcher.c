@@ -11,10 +11,8 @@
 
 void *str_stuff;
 addr_t beg_func;
-void *iboot_vers;
 char *args = NULL;
 void *lolz;
-
 
 bool fail = false;
 
@@ -29,9 +27,6 @@ int iBoot_check(void* buf, size_t len) {
      memcpy(coco, lolz, size);
 
      *(uint32_t *) (str_stuff) = 0x00000000000000000000000000000000;
- 
-      
-     
      
      char *str = "iBoot";
 
@@ -51,10 +46,6 @@ int iBoot_check(void* buf, size_t len) {
      	fail = true;
      	return -1;
      }
-
-     
-
-
 	return 0;
 }
 
@@ -79,7 +70,7 @@ int get_rsa_patch(void* buf, size_t len) {
 
     iboot_version = get_iboot_version(buf, len);
 
-    // 9.x
+    // iOS 9.x
     if (iboot_version == 2817) {
         str_stuff = memmem(buf,len,"\x08\x69\x88\x72", 0x4);
         if (!str_stuff) {
@@ -88,7 +79,7 @@ int get_rsa_patch(void* buf, size_t len) {
             return -1;
         }
     }
-    // 7.x
+    // iOS 7.x
     else if (iboot_version == 1940){
         str_stuff = memmem(buf,len,"\x0B\x69\x88\x72", 0x4);
         if (!str_stuff) {
@@ -98,7 +89,7 @@ int get_rsa_patch(void* buf, size_t len) {
         }
     }
 	
-    // anything else probably so 8.x
+    // anything else (iOS 8.x)
     else {
         str_stuff = memmem(buf,len,"\x0A\x69\x88\x72", 0x4);
         if (!str_stuff) {
@@ -109,22 +100,18 @@ int get_rsa_patch(void* buf, size_t len) {
     }
 
     beg_func = (addr_t)GET_OFFSET(len, str_stuff);
-
     beg_func = bof64(buf,0,beg_func);
 
     *(uint32_t *) (buf + beg_func) = 0xD2800000;
     *(uint32_t *) (buf + beg_func + 0x4) = 0xD65F03C0;
 
     printf("[+] Patched RSA signature checks\n");
-
     printf("%s: quitting\n", __FUNCTION__);
     
 	return 0;
 }
 
 int get_bootargs_patch(void *buf, size_t len, char *args) {
-	
-	
 	if (fail == true) {
 		return -1;
 	}
@@ -156,11 +143,8 @@ int main(int argc, char* argv[]) {
    	    printf("iPatcher - tool to patch lower versions of iBoot64 by @exploit3dguy\n");
         printf("Usage: ibec.raw ibec.pwn [-b]\n");
         printf("       -b set custom boot-args\n");
-        
-       
         return 0;
     }
-
 
     printf("%s: Starting...\n", __FUNCTION__);
 
@@ -169,7 +153,6 @@ int main(int argc, char* argv[]) {
 
 	void* buf;
     size_t len;
-
 
     FILE* fp = fopen(in, "rb");
      if (!fp) {
@@ -191,13 +174,7 @@ int main(int argc, char* argv[]) {
     fread(buf, 1, len, fp);
     fclose(fp);
 
-    
-
-
-    
     get_rsa_patch(buf,len);
-
-
     
     for(int i = 1; i < argc; i++) {
         if(strncmp(argv[i],"-b",2) == 0) {
@@ -207,28 +184,12 @@ int main(int argc, char* argv[]) {
     
     if (args) {
         get_bootargs_patch(buf,len,args);
-
     }
 
-
     if (fail == true) {
 		return -1;
 	}
 
-
-    
-    
-
-    
-
-    if (fail == true) {
-		return -1;
-	}
-
-    
-
-    
-     
     fp = fopen(out, "wb+");
 
     fwrite(buf, 1, len, fp);
@@ -238,9 +199,7 @@ int main(int argc, char* argv[]) {
     free(buf);
 
     printf("[*] Writing out patched file to %s\n", out);
-
     printf("%s: Quitting...\n", __FUNCTION__);
-
 
 	return 0;
 }
