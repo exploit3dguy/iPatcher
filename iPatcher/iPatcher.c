@@ -58,8 +58,17 @@ int iBoot_check(void* buf, size_t len) {
 	return 0;
 }
 
-int get_rsa_patch(void* buf, size_t len) {
+int get_iboot_version(void* buf, size_t len) {
+	char version[5];
+	void *version_string = memmem(buf, len, "iBoot-", strlen("iBoot-"));
 
+	strncpy(version, version_string + 6, 4);
+
+	return atoi(version);
+}
+
+int get_rsa_patch(void* buf, size_t len) {
+	int iboot_version = 0;
 	iBoot_check(buf,len);
 
 	if (fail == true) {
@@ -68,47 +77,40 @@ int get_rsa_patch(void* buf, size_t len) {
 
 	printf("getting %s()\n", __FUNCTION__);
 
-      
-	// 9.x
-	
-     if (strcmp(lolz, "iBoot-2817.0.0.1.2") == 0 || strcmp(lolz, "iBoot-2817.1.41.1.1") == 0 || strcmp(lolz, "iBoot-2817.1.55") == 0 || strcmp(lolz, "iBoot-2817.1.73") ==  0 || strcmp(lolz, "iBoot-2817.1.89") == 0 || strcmp(lolz, "iBoot-2817.1.93") == 0 || strcmp(lolz, "iBoot-2817.1.93") == 0 || strcmp(lolz, "iBoot-2817.1.94") == 0 || strcmp(lolz, "iBoot-2817.10.26") == 0 || strcmp(lolz, "iBoot-2817.10.29") == 0 || strcmp(lolz, "iBoot-2817.10.34") == 0 || strcmp(lolz, "iBoot-2817.10.34") == 0 || strcmp(lolz, "iBoot-2817.10.35") == 0 || strcmp(lolz, "iBoot-2817.20.21") == 0 || strcmp(lolz, "iBoot-2817.20.24") == 0 || strcmp(lolz, "iBoot-2817.20.26") == 0 || strcmp(lolz, "iBoot-2817.40.91") == 0 || strcmp(lolz, "iBoot-2817.40.97") == 0 || strcmp(lolz, "iBoot-2817.40.102") == 0 || strcmp(lolz, "iBoot-2817.40.104") == 0 || strcmp(lolz, "iBoot-2817.40.106") == 0 || strcmp(lolz, "iBoot-2817.40.106") == 0 || strcmp(lolz, "iBoot-2817.50.1") == 0 || strcmp(lolz, "iBoot-2817.50.2") == 0 || strcmp(lolz, "iBoot-2817.50.3") ==  0 || strcmp(lolz, "iBoot-2817.60.1") == 0 || strcmp(lolz, "iBoot-2817.60.2") == 0)
-    {
-      str_stuff = memmem(buf,len,"\x08\x69\x88\x72", 0x4);
-     if (!str_stuff) {
-     	printf("[-] Failed to find MOVK W8, #0x4348\n");
-     	fail = true;
-     	return -1;
-     }
-    }
-	
-    // 7.x
+    iboot_version = get_iboot_version(buf, len);
 
-    else  if (strcmp(lolz, "iBoot-1940.1.75") == 0 || strcmp(lolz, "iBoot-1940.1.75") == 0 || strcmp(lolz, "iBoot-1940.3.5") == 0 || strcmp(lolz, "iBoot-1940.10.51") ==  0 || strcmp(lolz, "iBoot-1940.10.57") == 0 || strcmp(lolz, "iBoot-1940.10.58") == 0 || strcmp(lolz, "iBoot-1940.10.58") == 0 || strcmp(lolz, "iBoot-1940.10.58") == 0 || strcmp(lolz, "iBoot-1940.10.58") == 0 || strcmp(lolz, "iBoot-1940.10.58") == 0 || strcmp(lolz, "iBoot-1940.10.58") == 0)
-    {
-      str_stuff = memmem(buf,len,"\x0B\x69\x88\x72", 0x4);
-     if (!str_stuff) {
-     	printf("[-] Failed to find MOVK W11, #0x4348\n");
-     	fail = true;
-     	return -1;
-     }
+    // 9.x
+    if (iboot_version == 2817) {
+        str_stuff = memmem(buf,len,"\x08\x69\x88\x72", 0x4);
+        if (!str_stuff) {
+            printf("[-] Failed to find MOVK W8, #0x4348\n");
+            fail = true;
+            return -1;
+        }
+    }
+    // 7.x
+    else if (iboot_version == 1940){
+        str_stuff = memmem(buf,len,"\x0B\x69\x88\x72", 0x4);
+        if (!str_stuff) {
+            printf("[-] Failed to find MOVK W11, #0x4348\n");
+            fail = true;
+            return -1;
+        }
     }
 	
     // anything else probably so 8.x
-
     else {
-
         str_stuff = memmem(buf,len,"\x0A\x69\x88\x72", 0x4);
-     if (!str_stuff) {
-     	printf("[-] Failed to find MOVK W10, #0x4348\n");
-     	fail = true;
-     	return -1;
-     }
-
+        if (!str_stuff) {
+            printf("[-] Failed to find MOVK W10, #0x4348\n");
+            fail = true;
+            return -1;
+        }
     }
 
-     beg_func = (addr_t)GET_OFFSET(len, str_stuff);
+    beg_func = (addr_t)GET_OFFSET(len, str_stuff);
 
-     beg_func = bof64(buf,0,beg_func);
+    beg_func = bof64(buf,0,beg_func);
 
     *(uint32_t *) (buf + beg_func) = 0xD2800000;
     *(uint32_t *) (buf + beg_func + 0x4) = 0xD65F03C0;
