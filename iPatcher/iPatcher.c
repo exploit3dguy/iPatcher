@@ -123,6 +123,11 @@ int get_rsa_patch(void* buf, size_t len) {
 }
 
 int get_bootargs_patch(void *buf, size_t len, char *args) {
+	
+	
+	if (fail == true) {
+		return -1;
+	}
 
 	printf("getting %s(%s)\n", __FUNCTION__, args);
     
