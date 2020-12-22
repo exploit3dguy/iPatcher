@@ -111,6 +111,34 @@ int get_rsa_patch(void* buf, size_t len) {
 	return 0;
 }
 
+int get_debugenabled_patch(void* buf, size_t len) {
+
+	if (fail == true) {
+		return -1;
+	}
+
+	printf("getting %s()\n", __FUNCTION__);
+
+	str_stuff = memmem(buf,len,"debug-enabled", 13);
+        if (!str_stuff) {
+            printf("[-] Failed to find debug-enabled string\n");
+            fail = true;
+            return -1;
+        }
+
+       beg_func = xref64(buf,0,len,(addr_t)GET_OFFSET(len, str_stuff));
+
+       beg_func = beg_func + 0x28;
+
+       *(uint32_t *) (buf + beg_func) = 0xD2800020;
+
+       printf("[+] Enabled kernel debug\n");
+       printf("%s: quitting\n", __FUNCTION__);
+
+
+	return 0;
+}
+
 int get_bootargs_patch(void *buf, size_t len, char *args) {
 	if (fail == true) {
 		return -1;
@@ -175,6 +203,7 @@ int main(int argc, char* argv[]) {
     fclose(fp);
 
     get_rsa_patch(buf,len);
+    get_debugenabled_patch(buf,len);
     
     for(int i = 1; i < argc; i++) {
         if(strncmp(argv[i],"-b",2) == 0) {
