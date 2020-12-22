@@ -70,7 +70,7 @@ int get_rsa_patch(void* buf, size_t len) {
 
     iboot_version = get_iboot_version(buf, len);
 
-    // iOS 9.x +
+    // iOS 9.x + and later
     if (iboot_version => 2817) {
         str_stuff = memmem(buf,len,"\x08\x69\x88\x72", 0x4);
         if (!str_stuff) {
