@@ -203,6 +203,11 @@ int main(int argc, char* argv[]) {
     fclose(fp);
 
     get_rsa_patch(buf,len);
+	
+    if (fail == true) {
+		return -1;
+     }
+	
     get_debugenabled_patch(buf,len);
     
     for(int i = 1; i < argc; i++) {
@@ -215,9 +220,7 @@ int main(int argc, char* argv[]) {
         get_bootargs_patch(buf,len,args);
     }
 
-    if (fail == true) {
-		return -1;
-	}
+    
 
     fp = fopen(out, "wb+");
 
