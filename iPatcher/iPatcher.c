@@ -192,9 +192,7 @@ int main(int argc, char* argv[]) {
 
     get_rsa_patch(buf,len);
 	
-    if (fail == true) {
-		return -1;
-     }
+    
 	
     get_debugenabled_patch(buf,len);
     
