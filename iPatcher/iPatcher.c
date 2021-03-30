@@ -105,7 +105,7 @@ int get_debugenabled_patch(void* buf, size_t len) {
 	str_stuff = memmem(buf,len,"debug-enabled", 13);
     if (!str_stuff) {
         printf("[-] Failed to find debug-enabled string\n");
-        
+        return -1;
     }
 
     beg_func = xref64(buf,0,len,(addr_t)GET_OFFSET(len, str_stuff));
