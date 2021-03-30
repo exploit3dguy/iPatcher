@@ -22,18 +22,18 @@ int iBoot_check(void* buf, size_t len) {
 
      memcpy(coco, lolz, size);
 
-     *(uint32_t *) (str_stuff) = 0x00000000000000000000000000000000;
+     *(uint32_t *) (str_stuff) = 0;
      
      char *str = "iBoot";
 
      if(strcmp(lolz, str) == 0) {
      	 memcpy(lolz, coco, size);
-     	*(uint32_t *) (coco) = 0x00000000000000000000000000000000;
-     	*(uint32_t *) (coco + 4) = 0x00000000000000000000000000000000;
-        *(uint32_t *) (coco + 8) = 0x00000000000000000000000000000000;
-        *(uint32_t *) (coco + 12) = 0x00000000000000000000000000000000;
-        *(uint32_t *) (coco + 16) = 0x00000000000000000000000000000000;
-        *(uint32_t *) (coco + 20) = 0x00000000000000000000000000000000;
+     	*(uint32_t *) (coco) = 0;
+     	*(uint32_t *) (coco + 4) = 0;
+        *(uint32_t *) (coco + 8) = 0;
+        *(uint32_t *) (coco + 12) = 0;
+        *(uint32_t *) (coco + 16) = 0;
+        *(uint32_t *) (coco + 20) = 0;
      	printf("inputted: %s\n", lolz);
      	return 0;
      }
