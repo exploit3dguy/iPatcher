@@ -108,6 +108,7 @@ int get_bootargs_patch(void *buf, size_t len, char *args) {
 	
 	if (strlen(args) > 35) {
 	 printf("[-] boot-args too long\n");
+         exit(1);
         }
 	
 	printf("getting %s(%s)\n", __FUNCTION__, args);
