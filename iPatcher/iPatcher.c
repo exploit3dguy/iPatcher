@@ -14,20 +14,11 @@ char *args = NULL;
 bool ibss;
 
 int iboot_check(void* buf, size_t len) {
-    void *iboot_ver = buf + 0x280;
-    find = buf + 0x285;
-    void *space = buf + 0x160;
-    size_t size = 0x20;
-    char *str = "iBoot";
+    void *iboot_ver_addr = buf + 0x280;
+    char iboot_ver[0x20];
 
-    memcpy(space, iboot_ver, size);
-    *(uint32_t *) (find) = 0;
-
-    if(strcmp(iboot_ver, str) == 0) {
-        memcpy(iboot_ver, space, size);
-        *(uint64_t *) (space) = 0;
-        *(uint64_t *) (space + 8) = 0;
-        *(uint64_t *) (space + 16) = 0;
+    memcpy(iboot_ver, iboot_ver_addr, sizeof(iboot_ver));
+    if(memcmp(iboot_ver, "iBoot", 0x5) == 0) {
         printf("inputted: %s\n", iboot_ver);
     } else {
         printf("Invalid image. Make sure image is extracted, iPatcher doesn't support IM4P/IMG4\n");
