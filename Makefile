@@ -1,4 +1,4 @@
 all:
 	
-	@gcc iPatcher/iPatcher.c -o iPatcher
-	@echo [*] Built iPatcher
+	@gcc iPatcher/iPatcher.c -o iPatcher/iPatcher
+	@echo [*] Built iPatcher/iPatcher
