@@ -144,7 +144,7 @@ int main(int argc, char* argv[]) {
         printf("[-] Failed to open iBoot image\n");
         return -1;
     }
-    iBoot_check(buf,len);
+    iboot_check(buf,len);
 
     fseek(fp, 0, SEEK_END);
     len = ftell(fp);
