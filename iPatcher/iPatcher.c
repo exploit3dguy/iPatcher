@@ -50,7 +50,7 @@ int get_rsa_patch(void* buf, size_t len) {
 	printf("getting %s()\n", __FUNCTION__);
 
     // iOS 9.x and later
-    if (iboot_version >= 2817) {
+    if (iboot_version == 2817) {
         find = memmem(buf,len,"\x08\x69\x88\x72", 0x4);
         if (!find) {
             printf("[-] Failed to find MOVK W8, #0x4348\n");
@@ -59,7 +59,7 @@ int get_rsa_patch(void* buf, size_t len) {
     }
 
     // iOS 8.x
-    else if (iboot_version >= 2261){
+    else if (iboot_version == 2261){
         find = memmem(buf,len,"\x0A\x69\x88\x72", 0x4);
         if (!find) {
             printf("[-] Failed to find MOVK W10, #0x4348\n");
@@ -144,7 +144,7 @@ int main(int argc, char* argv[]) {
         printf("[-] Failed to open iBoot image\n");
         return -1;
     }
-    iboot_check(buf,len);
+    
 
     fseek(fp, 0, SEEK_END);
     len = ftell(fp);
@@ -160,6 +160,7 @@ int main(int argc, char* argv[]) {
     fread(buf, 1, len, fp);
     fclose(fp);
 
+    iboot_check(buf,len);	
     get_rsa_patch(buf,len);
     get_debugenabled_patch(buf,len);
     
