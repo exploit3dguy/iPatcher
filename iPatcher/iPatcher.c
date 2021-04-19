@@ -29,13 +29,14 @@ int iboot_check(void* buf, size_t len) {
         *(uint64_t *) (space + 8) = 0;
         *(uint64_t *) (space + 16) = 0;
         printf("inputted: %s\n", iboot_ver);
-        return 0;
     } else {
         printf("Invalid image. Make sure image is extracted, iPatcher doesn't support IM4P/IMG4\n");
         exit(1);
     }
 
-    void *build_type = buf + 0x200;
+    void *build_type_addr = buf + 0x200;
+    char build_type[0x4];
+    memcpy(build_type, build_type_addr, sizeof(build_type));
     if (strcmp(build_type, "iBSS") == 0) {
         ibss = true;
     }
@@ -170,7 +171,7 @@ int main(int argc, char* argv[]) {
 
     if (!ibss) {
         get_debugenabled_patch(buf,len);
-        
+
         for(int i = 1; i < argc; i++) {
             if(strncmp(argv[i],"-b",2) == 0) {
                 get_bootargs_patch(buf,len,argv[i+1]);
