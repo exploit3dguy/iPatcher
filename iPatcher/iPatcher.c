@@ -28,7 +28,7 @@ int iboot_check(void* buf, size_t len) {
     void *build_type_addr = buf + 0x200;
     char build_type[0x4];
     memcpy(build_type, build_type_addr, sizeof(build_type));
-    if (strcmp(build_type, "iBSS" == 0 || strcmp(build_type, "LLB ") == 0) {
+    if (strcmp(build_type, "iBSS") == 0 || strcmp(build_type, "LLB ") == 0) {
         ibss = true;
     }
 
