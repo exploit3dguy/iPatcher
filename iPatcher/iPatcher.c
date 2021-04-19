@@ -11,10 +11,10 @@
 void *find;
 addr_t beg_func;
 char *args = NULL;
-void *iboot_ver;
+bool ibss;
 
 int iboot_check(void* buf, size_t len) {
-    iboot_ver = buf + 0x280;
+    void *iboot_ver = buf + 0x280;
     find = buf + 0x285;
     void *space = buf + 0x160;
     size_t size = 0x20;
@@ -34,6 +34,12 @@ int iboot_check(void* buf, size_t len) {
         printf("Invalid image. Make sure image is extracted, iPatcher doesn't support IM4P/IMG4\n");
         exit(1);
     }
+
+    void *build_type = buf + 0x200;
+    if (strcmp(build_type, "iBSS") == 0) {
+        ibss = true;
+    }
+
 	return 0;
 }
 
@@ -46,7 +52,6 @@ int get_iboot_version(void* buf, size_t len) {
 
 int get_rsa_patch(void* buf, size_t len) {
 	int iboot_version = get_iboot_version(buf, len);
-
 	printf("getting %s()\n", __FUNCTION__);
 
     // iOS 9.x and later
@@ -76,7 +81,7 @@ int get_rsa_patch(void* buf, size_t len) {
         }
     }
 
-    //anything other version
+    //any other version
     else {
         printf("Version not supported\n");
         exit(1);
@@ -162,11 +167,14 @@ int main(int argc, char* argv[]) {
 
     iboot_check(buf,len);	
     get_rsa_patch(buf,len);
-    get_debugenabled_patch(buf,len);
-    
-    for(int i = 1; i < argc; i++) {
-        if(strncmp(argv[i],"-b",2) == 0) {
-            get_bootargs_patch(buf,len,argv[i+1]);
+
+    if (!ibss) {
+        get_debugenabled_patch(buf,len);
+        
+        for(int i = 1; i < argc; i++) {
+            if(strncmp(argv[i],"-b",2) == 0) {
+                get_bootargs_patch(buf,len,argv[i+1]);
+            }
         }
     }
 
