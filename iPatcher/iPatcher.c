@@ -125,7 +125,7 @@ int get_bootargs_patch(void *buf, size_t len, char *args) {
     char *args2 = strcat(args, "                    ");
     strcpy(find, args2);
 
-    printf("[+] Set xnu boot-args to \"%s\"\n", args);
+    printf("[+] Set xnu boot-args to %s\n", args);
 	return 0;
 }
 
