@@ -87,6 +87,118 @@ int get_rsa_patch(void* buf, size_t len) {
 	return 0;
 }
 
+static uint32_t make_bl(uintptr_t from, uintptr_t to) {
+  return from > to ? 0x18000000 - (from - to) / 4 : 0x94000000 + (to - from) / 4;
+}
+
+
+
+
+int get_securerom_patch(void *buf, size_t len) {
+
+    int iboot_version = get_iboot_version(buf, len);
+
+    if (iboot_version == 2817) {
+        printf("iOS 9 iBoots aren't supported by SecureROM patch\n");
+        return -1;
+       }
+
+   
+
+
+    printf("getting %s()\n", __FUNCTION__);
+
+    addr_t prepare_and_jump;
+    addr_t tramp_init;
+
+
+    /*
+    BL tramp_init
+    MOV X1, X0
+    MOV W0, #7 @ BOOT_TARGET = BOOT_SECUREROM
+    MOV X2, #0x100000000
+    MOV X3, #0
+    BL prepare_and_jump
+    */
+
+
+    // find funcs
+
+    find = memmem(buf,len,"jumping into image at",strlen("jumping into image at"));
+    if (!find) {
+        printf("[-] Failed to find prepare_and_jump\n");
+        return -1;
+    }
+
+        beg_func = xref64(buf,0,len,(addr_t)GET_OFFSET(len, find));
+          
+
+        if (iboot_version == 1940) {
+        prepare_and_jump = follow_call64(buf, beg_func + 0x1c);
+        tramp_init = follow_call64(buf, beg_func + 0x8);
+       }
+
+       if (iboot_version == 2261) {
+        prepare_and_jump = follow_call64(buf, beg_func + 0x28);
+        tramp_init = follow_call64(buf, beg_func + 0x10);
+       }
+
+ 
+       
+  
+   
+    
+    
+    
+    
+
+    find = memmem(buf,len,"cebilefctmbrtlhptreprmmh",strlen("cebilefctmbrtlhptreprmmh"));
+    if (!find) {
+        printf("[-] Failed to find go cmd\n");
+        return -1;
+    }
+
+    beg_func = xref64(buf,0,len,(addr_t)GET_OFFSET(len, find));
+
+    
+
+
+
+    if (iboot_version == 1940) {
+        beg_func = beg_func - 0x44;
+    }
+
+    if (iboot_version == 2261) {
+        beg_func = beg_func - 0x34;
+    }
+
+  
+
+
+    // write the payload
+
+    
+
+
+    *(uint32_t *) (buf + beg_func) = make_bl((uintptr_t)buf + beg_func,(uintptr_t)tramp_init + (uintptr_t)buf); // BL tramp_init
+    *(uint32_t *) (buf + beg_func + 0x4) = 0xAA0003E1; // MOV X1, X0
+    *(uint32_t *) (buf + beg_func + 0x8) = 0x528000E0; // MOV W0, #7
+    *(uint32_t *) (buf + beg_func + 0xC) = 0xD2C00022; // MOV X2, #0x100000000
+    *(uint32_t *) (buf + beg_func + 0x10) = 0xD2800003; // MOV X3, #0
+    *(uint32_t *) (buf + beg_func + 0x14) = make_bl((uintptr_t)buf + beg_func + 0x14,(uintptr_t)prepare_and_jump + (uintptr_t)buf); // BL prepare_and_jump
+    
+   
+    
+
+    printf("[+] Applied patch to boot SecureROM\n");
+
+    return 0;
+
+
+
+
+}
+
 int get_debugenabled_patch(void* buf, size_t len) {
 	printf("getting %s()\n", __FUNCTION__);
 
@@ -171,6 +283,10 @@ int main(int argc, char* argv[]) {
         get_debugenabled_patch(buf,len);
 
         for(int i = 1; i < argc; i++) {
+		
+	    if(strncmp(argv[i],"-s",2) == 0) {
+              get_securerom_patch(buf,len);
+           }
             if(strncmp(argv[i],"-b",2) == 0) {
                 get_bootargs_patch(buf,len,argv[i+1]);
             }
