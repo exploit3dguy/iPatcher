@@ -169,7 +169,7 @@ int get_securerom_patch(void *buf, size_t len) {
     }
 
     if (iboot_version == 2261) {
-        beg_func = beg_func - 0x34;
+        beg_func = beg_func - 0x30;
     }
 
   
