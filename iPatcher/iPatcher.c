@@ -244,6 +244,7 @@ int main(int argc, char* argv[]) {
    	    printf("iPatcher - tool to patch lower versions of iBoot64 by @exploit3dguy\n");
         printf("Usage: ibec.raw ibec.pwn [-b]\n");
         printf("       -b set custom boot-args\n");
+	printf("       -s SecureROM boot patch\n");
         return 0;
     }
 
