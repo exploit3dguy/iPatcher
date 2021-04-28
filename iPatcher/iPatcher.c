@@ -220,7 +220,7 @@ int get_bootargs_patch(void *buf, size_t len, char *args) {
 	
 	if (strlen(args) > 35) {
 	 printf("[-] boot-args too long\n");
-         exit(1);
+         return -1;
         }
 	
 	printf("getting %s(%s)\n", __FUNCTION__, args);
@@ -228,7 +228,7 @@ int get_bootargs_patch(void *buf, size_t len, char *args) {
     find = memmem(buf,len,"rd=md0 nand-enable-reformat=1", 28);
     if (!find) {
     	printf("[-] Failed to find boot-args string\n");
-    	exit(1);
+    	return -1;
     }
     
     
