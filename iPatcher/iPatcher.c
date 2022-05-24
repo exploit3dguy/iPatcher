@@ -214,7 +214,7 @@ int get_bootargs_patch(void *buf, size_t len, char *args) {
         printf("failed to find xref\n");
     }
     
-    void *findcertarea = memmem(buf,len,"Reliance on this certificate by", strlen("Reliance on this certificate by"));
+    void *findcertarea = memmem(buf,len,"Reliance on this certificate by",strlen("Reliance on this certificate by"));
     if (!findcertarea) {
         printf("[-] Failed to cert area for new boot-args\n");
         return -1;
@@ -234,7 +234,7 @@ int get_bootargs_patch(void *buf, size_t len, char *args) {
 
 int main(int argc, char* argv[]) {
     if(argc < 3) {
-   	    printf("iPatcher - tool to patch lower versions of iBoot64 by @exploit3dguy\n");
+   	printf("iPatcher - tool to patch lower versions of iBoot64 by @exploit3dguy\n");
         printf("Usage: ibec.raw ibec.pwn [-b]\n");
         printf("       -b set custom boot-args\n");
 	printf("       -s SecureROM boot patch\n");
@@ -260,7 +260,7 @@ int main(int argc, char* argv[]) {
     len = ftell(fp);
     fseek(fp, 0, SEEK_SET);
 
-    buf = (void*)malloc(len);
+    buf = malloc(len);
     if(!buf) {
         printf("[-] Out of memory\n");
         fclose(fp);
@@ -277,7 +277,6 @@ int main(int argc, char* argv[]) {
         get_debugenabled_patch(buf,len);
 
         for(int i = 1; i < argc; i++) {
-		
 	    if(strncmp(argv[i],"-s",2) == 0) {
               get_securerom_patch(buf,len);
            }
