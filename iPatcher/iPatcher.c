@@ -81,6 +81,9 @@ int get_iboot_version(void* buf, size_t len) {
     }
 
     ref = bof64(buf, 0, (addr_t)GET_OFFSET(find, buf));
+    if (!ref) {
+        printf("failed to find bof\n");
+    }
     *(uint32_t *) (buf + ref) = bswap32(0x000080D2); // mov x0, #0
     *(uint32_t *) (buf + ref + 0x4) = bswap32(0xC0035FD6); // ret
 
@@ -119,6 +122,9 @@ int get_securerom_patch(void *buf, size_t len) {
         return -1;
     }
         ref = xref64(buf,0,len,(addr_t)GET_OFFSET(find, buf));
+        if (!ref) {
+         printf("failed to find xref\n");
+        }
         if (iboot_version == 1940) {
         prepare_and_jump = follow_call64(buf, ref + 0x1c);
         tramp_init = follow_call64(buf, ref + 0x8);
@@ -135,6 +141,9 @@ int get_securerom_patch(void *buf, size_t len) {
     }
 
     ref = xref64(buf,0,len,(addr_t)GET_OFFSET(find, buf));
+    if (!ref) {
+        printf("failed to find xref\n");
+    }
 
     if (iboot_version == 1940) {
         ref = ref - 0x44;
@@ -165,8 +174,10 @@ int get_debugenabled_patch(void* buf, size_t len) {
     }
 
     ref = xref64(buf,0,len,(addr_t)GET_OFFSET(find, buf));
-    ref = ref + 0x28;
-    *(uint32_t *) (buf + ref) = bswap32(0x200080D2); // mov x0, #1
+    if (!ref) {
+        printf("failed to find xref\n");
+    }
+    *(uint32_t *) (buf + ref + 0x28) = bswap32(0x200080D2); // mov x0, #1
 
     printf("[+] Enabled kernel debug\n");
 	return 0;
@@ -286,14 +297,12 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    printf("[*] Writing out patched file to %s\n", out);
     fp = fopen(out, "wb+");
     fwrite(buf, 1, len, fp);
     fflush(fp);
     fclose(fp);
-    
     free(buf);
-
-    printf("[*] Writing out patched file to %s\n", out);
     printf("%s: Quitting...\n", __FUNCTION__);
-	return 0;
+    return 0;
 }
