@@ -235,8 +235,17 @@ int get_bootargs_patch(void *buf, size_t len, char *args) {
     if (iboot_version == 1940) {
         *(uint32_t *) (buf + ref - 0x4) = bswap32(0x1F2003D5);
     }
+	
+    find = memmem(buf+ref,len,"\x34\x01\x88\x9A",0x4); // find CSEL
+    if (!find) {
+        printf("[-] Failed to find CSEL\n");
+        return -1;
+    }
+	
+    *(uint32_t *) (find) = bswap32(0xF40308AA); // replace csel x20, x9, x8, eq with mov x20, x8
     
-    args = strcat(args,"\n");
+    
+    args = strcat(args,"\x00");
     strcpy(findcertarea, args);
 
     printf("[+] Set xnu boot-args to %s", args);
