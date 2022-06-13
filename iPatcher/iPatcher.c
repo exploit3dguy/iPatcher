@@ -49,7 +49,7 @@ int get_iboot_version(void* buf, size_t len) {
 
     // iOS 9.x and later
     if (iboot_version == 2817) {
-        find = memmem(buf,len,"\x08\x69\x88\x72", 0x4);
+        find = memmem(buf,len,"\x69\x88\x72", 0x3);
         if (!find) {
             printf("[-] Failed to find MOVK W8, #0x4348\n");
             exit(1);
@@ -58,7 +58,7 @@ int get_iboot_version(void* buf, size_t len) {
 
     // iOS 8.x
     else if (iboot_version == 2261){
-        find = memmem(buf,len,"\x0A\x69\x88\x72", 0x4);
+        find = memmem(buf,len,"\x69\x88\x72",0x3);
         if (!find) {
             printf("[-] Failed to find MOVK W10, #0x4348\n");
             exit(1);
@@ -67,7 +67,7 @@ int get_iboot_version(void* buf, size_t len) {
 
     // iOS 7.x
     else if (iboot_version == 1940){
-        find = memmem(buf,len,"\x0B\x69\x88\x72", 0x4);
+        find = memmem(buf,len,"\x69\x88\x72",0x3);
         if (!find) {
             printf("[-] Failed to find MOVK W11, #0x4348\n");
             exit(1);
@@ -80,7 +80,7 @@ int get_iboot_version(void* buf, size_t len) {
         exit(1);
     }
 
-    ref = bof64(buf, 0, (addr_t)GET_OFFSET(find, buf));
+    ref = bof64(buf, 0, (addr_t)GET_OFFSET(find-1, buf));
     if (!ref) {
         printf("failed to find bof\n");
     }
